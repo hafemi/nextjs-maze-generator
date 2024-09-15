@@ -99,7 +99,8 @@
 }
 
 .inputGroup label {
-  width: 60px;
+  width: 100px;
+  text-align: left;
 }
 
 .button {
