@@ -112,7 +112,18 @@ export default function Home() {
           </select>
         </div>
         <div>
-          <button onClick={handleGenerationButtonClicked}>
+          <button
+            onClick={() =>
+              handleGenerationButtonClicked({
+                width: parseInt(width),
+                height: parseInt(height),
+                innerWidth: parseInt(innerWidth),
+                innerHeight: parseInt(innerHeight),
+                startingPoint,
+                invalidElements,
+              })
+            }
+          >
             <FaGear /> Generate
           </button>
           <button onClick={handleSolutionButtonClicked}>
