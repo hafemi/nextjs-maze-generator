@@ -32,6 +32,7 @@
   flex-direction: column;
   gap: 32px;
   grid-row-start: 2;
+  align-items: center
 }
 
 .main ol {
@@ -78,31 +79,44 @@
   font-weight: 500;
 }
 
-a.primary {
-  background: var(--foreground);
-  color: var(--background);
-  gap: 8px;
+.heading {
+  text-align: center;
+  font-size: 50px; /* Adjust the size as needed */
+  margin-bottom: 20px; /* Add some space below the heading */
 }
 
-a.secondary {
-  border-color: var(--gray-alpha-200);
-  min-width: 180px;
-}
-
-.footer {
-  grid-row-start: 3;
+.inputContainer {
   display: flex;
-  gap: 24px;
+  flex-direction: column;
+  gap: 10px;
+  text-align: center;
 }
 
-.footer a {
+.inputGroup {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
 }
 
-.footer img {
-  flex-shrink: 0;
+.inputGroup label {
+  width: 60px;
+}
+
+.button {
+  background-color: #ffffff;
+  color: rgb(0, 0, 0);
+  border: none;
+  padding: 10px 20px;
+  font-size: 1em;
+  cursor: pointer;
+  border-radius: 50px;
+  transition: background-color 0.3s;
+  margin-right: 15px;
+  margin-left: 15px;
+}
+
+.button:hover {
+  background-color: #8f8f8f;
 }
 
 /* Enable hover only on non-touch devices */
