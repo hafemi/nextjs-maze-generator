@@ -42,12 +42,11 @@ export default function Home() {
             `}
             id="width"
             type="number"
-            placeholder="1-100"
+            placeholder="5-75"
             value={width}
-            max={30}
             onChange={(e) => {
               setWidth(e.target.value);
-              validateElement(parseInt(e.target.value), 1, 100, "width");
+              validateElement(parseInt(e.target.value), 5, 75, "width");
             }}
           />
           <br />
@@ -59,11 +58,11 @@ export default function Home() {
             `}
             id="height"
             type="number"
-            placeholder="1-100"
+            placeholder="5-75"
             value={height}
             onChange={(e) => {
               setHeight(e.target.value);
-              validateElement(parseInt(e.target.value), 1, 100, "height");
+              validateElement(parseInt(e.target.value), 5, 75, "height");
             }}
           />
           <br />

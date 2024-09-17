@@ -14,6 +14,7 @@ export function handleGenerationButtonClicked({
   invalidElements: string[];
 }): void {
   if (invalidElements.length > 0) return;
+  
 
   generateMaze(width, height);
   console.log(innerWidth, innerHeight, startingPoint);
@@ -35,8 +36,8 @@ function generateMaze(width: number, height: number): void {
 
   carve_passages_from({ cx: 1, cy: 0, grid });
   const ascii = createASCII({ width, height, grid, S, E });
-  
-  console.log(ascii)
+
+  console.log(ascii);
 
   function carve_passages_from({
     cx,
