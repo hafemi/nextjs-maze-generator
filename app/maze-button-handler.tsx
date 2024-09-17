@@ -1,23 +1,47 @@
-export function handleGenerationButtonClicked({
-  width,
-  height,
-  innerWidth,
-  innerHeight,
-  startingPoint,
-  invalidElements,
-}: {
+interface MazeGenerationConfig {
   width: number;
   height: number;
   innerWidth: number;
   innerHeight: number;
-  startingPoint: string;
   invalidElements: string[];
-}): void {
-  if (invalidElements.length > 0) return;
-  
+  minValues: Record<string, number>;
+  maxValues: Record<string, number>;
+}
 
-  generateMaze(width, height);
-  console.log(innerWidth, innerHeight, startingPoint);
+export function handleGenerationButtonClicked(
+  values: MazeGenerationConfig
+): void {
+  const isValid = validateElements(values);
+
+  if (!isValid) return;
+
+  generateMaze(values.width, values.height);
+}
+
+function validateElements({
+  width,
+  height,
+  innerWidth,
+  innerHeight,
+  invalidElements,
+  minValues,
+  maxValues,
+}: MazeGenerationConfig): boolean {
+  if (invalidElements.length > 0) return false;
+
+  // prettier-ignore
+  const dimensions = [
+    { value: width, min: minValues.width, max: maxValues.width },
+    { value: height, min: minValues.height, max: maxValues.height },
+    { value: innerWidth, min: minValues.innerWidth, max: maxValues.innerWidth },
+    { value: innerHeight, min: minValues.innerHeight, max: maxValues.innerHeight},
+  ];
+
+  for (const { value, min, max } of dimensions) {
+    if (value < min || value > max) return false;
+  }
+
+  return true;
 }
 
 function generateMaze(width: number, height: number): void {

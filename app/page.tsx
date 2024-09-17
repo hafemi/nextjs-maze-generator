@@ -7,6 +7,20 @@ import {
 } from "./maze-button-handler";
 import styles from "./page.module.css";
 
+const minValues: Record<string, number> = {
+  width: 5,
+  height: 5,
+  innerWidth: 0,
+  innerHeight: 0,
+};
+
+const maxValues: Record<string, number> = {
+  width: 75,
+  height: 75,
+  innerWidth: 70,
+  innerHeight: 70,
+};
+
 export default function Home() {
   const [width, setWidth] = useState("");
   const [height, setHeight] = useState("");
@@ -15,13 +29,18 @@ export default function Home() {
   const [startingPoint, setStartingPoint] = useState("top");
   const [invalidElements, setInvalidElements] = useState<string[]>([]);
 
-  const validateElement = (
-    value: number,
-    min: number,
-    max: number,
-    elementId: string
-  ): void => {
-    if (!value || value < min || value > max) {
+  const validateElement = ({
+    value,
+    min,
+    max,
+    elementId,
+  }: {
+    value: number;
+    min: number;
+    max: number;
+    elementId: string;
+  }): void => {
+    if ((!isNaN(value) && value < min) || value > max) {
       setInvalidElements([...invalidElements, elementId]);
       return;
     }
@@ -42,11 +61,16 @@ export default function Home() {
             `}
             id="width"
             type="number"
-            placeholder="5-75"
+            placeholder={`${minValues.width}-${maxValues.width}`}
             value={width}
             onChange={(e) => {
               setWidth(e.target.value);
-              validateElement(parseInt(e.target.value), 5, 75, "width");
+              validateElement({
+                value: parseInt(e.target.value),
+                min: minValues.width,
+                max: maxValues.width,
+                elementId: "width",
+              });
             }}
           />
           <br />
@@ -58,11 +82,16 @@ export default function Home() {
             `}
             id="height"
             type="number"
-            placeholder="5-75"
+            placeholder={`${minValues.height}-${maxValues.height}`}
             value={height}
             onChange={(e) => {
               setHeight(e.target.value);
-              validateElement(parseInt(e.target.value), 5, 75, "height");
+              validateElement({
+                value: parseInt(e.target.value),
+                min: minValues.height,
+                max: maxValues.height,
+                elementId: "height",
+              });
             }}
           />
           <br />
@@ -74,11 +103,16 @@ export default function Home() {
             `}
             id="innerWidth"
             type="number"
-            placeholder="1-5"
+            placeholder={`${minValues.innerWidth}-${maxValues.innerWidth}`}
             value={innerWidth}
             onChange={(e) => {
               setInnerWidth(e.target.value);
-              validateElement(parseInt(e.target.value), 1, 5, "innerWidth");
+              validateElement({
+                value: parseInt(e.target.value),
+                min: minValues.innerWidth,
+                max: maxValues.innerWidth,
+                elementId: "innerWidth",
+              });
             }}
           />
           <br />
@@ -90,11 +124,16 @@ export default function Home() {
             `}
             id="innerHeight"
             type="number"
-            placeholder="1-5"
+            placeholder={`${minValues.innerHeight}-${maxValues.innerHeight}`}
             value={innerHeight}
             onChange={(e) => {
               setInnerHeight(e.target.value);
-              validateElement(parseInt(e.target.value), 1, 5, "innerHeight");
+              validateElement({
+                value: parseInt(e.target.value),
+                min: minValues.innerHeight,
+                max: maxValues.innerHeight,
+                elementId: "innerHeight",
+              });
             }}
           />
           <br />
@@ -114,12 +153,13 @@ export default function Home() {
           <button
             onClick={() =>
               handleGenerationButtonClicked({
-                width: parseInt(width),
-                height: parseInt(height),
-                innerWidth: parseInt(innerWidth),
-                innerHeight: parseInt(innerHeight),
-                startingPoint,
+                width: getNumber(width),
+                height: getNumber(height),
+                innerWidth: getNumber(innerWidth) ?? 0,
+                innerHeight: getNumber(innerHeight) ?? 0,
                 invalidElements,
+                minValues,
+                maxValues,
               })
             }
           >
@@ -132,4 +172,8 @@ export default function Home() {
       </main>
     </div>
   );
+}
+
+function getNumber(value: string): number {
+  return isNaN(parseInt(value)) ? 0 : parseInt(value);
 }
