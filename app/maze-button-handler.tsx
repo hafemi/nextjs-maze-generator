@@ -1,3 +1,63 @@
+class MazeGenerator {
+  maze: number[][];
+
+  constructor(public width: number, public height: number) {
+    this.maze = this.initMaze();
+  }
+
+  initMaze(): number[][] {
+    const maze = [];
+    for (let y = 0; y < this.height * 2 + 1; y++) {
+      const row = [];
+      for (let x = 0; x < this.width * 2 + 1; x++) {
+        row.push(1);
+      }
+      maze.push(row);
+    }
+    return maze;
+  }
+
+  generateMaze(): void {
+    // Randomly select a starting point, ensure it's an odd number.
+    const x = Math.floor(Math.random() * this.width) * 2 + 1;
+    const y = Math.floor(Math.random() * this.height) * 2 + 1;
+    this.maze[y][x] = 0;
+
+    this.carveMaze(x, y);
+
+    // Create an entry and an exit
+    this.maze[1][0] = 0; // Entry
+    this.maze[this.height * 2 - 1][this.width * 2] = 0; // Exit
+  }
+
+  // Carve maze using recursive backtracking
+  carveMaze(x: number, y: number) {
+    const dirs = [
+      [-2, 0],
+      [2, 0],
+      [0, -2],
+      [0, 2],
+    ].sort(() => Math.random() - 0.5);
+
+    for (let i = 0; i < dirs.length; i++) {
+      const [dx, dy] = dirs[i];
+      const nx = x + dx;
+      const ny = y + dy;
+
+      if (
+        ny > 0 &&
+        ny < this.height * 2 &&
+        nx > 0 &&
+        nx < this.width * 2 &&
+        this.maze[ny][nx] === 1
+      ) {
+        this.maze[ny - dy / 2][nx - dx / 2] = this.maze[ny][nx] = 0;
+        this.carveMaze(nx, ny);
+      }
+    }
+  }
+}
+
 interface MazeGenerationConfig {
   width: number;
   height: number;
@@ -12,10 +72,12 @@ export function handleGenerationButtonClicked(
   values: MazeGenerationConfig
 ): void {
   const isValid = validateElements(values);
-
   if (!isValid) return;
 
-  generateMaze(values.width, values.height);
+  const mazeGenerator = new MazeGenerator(values.width, values.height);
+  mazeGenerator.generateMaze();
+
+  console.log(createStringFromMaze(mazeGenerator.maze));
 }
 
 function validateElements({
@@ -34,7 +96,7 @@ function validateElements({
     { value: width, min: minValues.width, max: maxValues.width },
     { value: height, min: minValues.height, max: maxValues.height },
     { value: innerWidth, min: minValues.innerWidth, max: maxValues.innerWidth },
-    { value: innerHeight, min: minValues.innerHeight, max: maxValues.innerHeight},
+    { value: innerHeight, min: minValues.innerHeight, max: maxValues.innerHeight },
   ];
 
   for (const { value, min, max } of dimensions) {
@@ -44,93 +106,19 @@ function validateElements({
   return true;
 }
 
-function generateMaze(width: number, height: number): void {
-  const N = 1;
-  const S = 2;
-  const E = 4;
-  const W = 8;
-
-  const grid: number[][] = new Array(height)
-    .fill([])
-    .map(() => new Array(width).fill(0));
-
-  const dx: Record<number, number> = { [E]: 1, [W]: -1, [N]: 0, [S]: 0 };
-  const dy: Record<number, number> = { [E]: 0, [W]: 0, [N]: -1, [S]: 1 };
-  const opposite: Record<number, number> = { [E]: W, [W]: E, [N]: S, [S]: N };
-
-  carve_passages_from({ cx: 1, cy: 0, grid });
-  const ascii = createASCII({ width, height, grid, S, E });
-
-  console.log(ascii);
-
-  function carve_passages_from({
-    cx,
-    cy,
-    grid,
-  }: {
-    cx: number;
-    cy: number;
-    grid: number[][];
-  }): void {
-    const directions: number[] = shuffleArray([N, S, E, W]);
-
-    directions.forEach((direction) => {
-      const nx = cx + dx[direction];
-      const ny = cy + dy[direction];
-
-      if (
-        ny >= 0 &&
-        ny < grid.length &&
-        nx >= 0 &&
-        nx < grid[ny].length &&
-        grid[ny][nx] === 0
-      ) {
-        grid[cy][cx] |= direction;
-        grid[ny][nx] |= opposite[direction];
-        carve_passages_from({ cx: nx, cy: ny, grid });
-      }
-    });
-  }
-}
-
-function createASCII({
-  width,
-  height,
-  grid,
-  S,
-  E,
-}: {
-  width: number;
-  height: number;
-  grid: number[][];
-  S: number;
-  E: number;
-}): string {
-  let ascii = " " + "_".repeat(width * 2 - 1);
-
-  for (let h = 0; h < height; h++) {
-    let row = "|";
-    for (let w = 0; w < width; w++) {
-      row += (grid[h][w] & S) != 0 ? " " : "_";
-      if (grid[h][w] & E) {
-        row += ((grid[h][w] | grid[h][w + 1]) & S) != 0 ? " " : "_";
+function createStringFromMaze(maze: number[][]): string {
+  let string = "";
+  for (let i = 0; i < maze.length; i++) {
+    for (let j = 0; j < maze[i].length; j++) {
+      if (maze[i][j] === 1) {
+        string += "#";
       } else {
-        row += "|";
+        string += " ";
       }
     }
-    ascii += "\n" + row;
+    string += "\n";
   }
-
-  return ascii;
-}
-
-function shuffleArray<T>(arr: T[]): T[] {
-  let m = arr.length;
-  while (m) {
-    const i = Math.floor(Math.random() * m--);
-    [arr[m], arr[i]] = [arr[i], arr[m]];
-  }
-  return arr;
+  return string;
 }
 
 export function handleSolutionButtonClicked(): void {
