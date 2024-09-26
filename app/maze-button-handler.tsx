@@ -77,7 +77,33 @@ export function handleGenerationButtonClicked(
   const mazeGenerator = new MazeGenerator(values.width, values.height);
   mazeGenerator.generateMaze();
 
-  console.log(createStringFromMaze(mazeGenerator.maze));
+  updateMazeCanvas(mazeGenerator.maze, values);
+}
+
+function updateMazeCanvas(
+  maze: number[][],
+  values: MazeGenerationConfig
+): void {
+  const mazeCanvas = document.getElementById('mazeCanvas') as HTMLCanvasElement;
+  const ctx = mazeCanvas.getContext('2d');
+  const multiplier = 10;
+  const newWidth = (values.width * 2 + 1) * multiplier;
+  const newHeight = (values.height * 2 + 1) * multiplier;
+  if (!ctx) return;
+
+  mazeCanvas.width = newWidth;
+  mazeCanvas.height = newHeight;
+
+  for (let y = 0; y < maze.length; y++) {
+    for (let x = 0; x < maze[y].length; x++) {
+      if (maze[y][x] === 1) {
+        ctx.fillStyle = 'black';
+      } else {
+        ctx.fillStyle = 'white';
+      }
+      ctx.fillRect(x * multiplier, y * multiplier, multiplier, multiplier);
+    }
+  }
 }
 
 function validateElements({
@@ -106,20 +132,6 @@ function validateElements({
   return true;
 }
 
-function createStringFromMaze(maze: number[][]): string {
-  let string = "";
-  for (let i = 0; i < maze.length; i++) {
-    for (let j = 0; j < maze[i].length; j++) {
-      if (maze[i][j] === 1) {
-        string += "#";
-      } else {
-        string += " ";
-      }
-    }
-    string += "\n";
-  }
-  return string;
-}
 
 export function handleSolutionButtonClicked(): void {
   console.log("clicked solution");

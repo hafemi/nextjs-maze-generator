@@ -56,7 +56,7 @@ export default function Home() {
           <label htmlFor="width">Width</label>
           <input
             className={`
-              ${invalidElements.includes("width") ? styles.invalid : ""}
+              ${invalidElements.includes('width') ? styles.invalid : ''}
               ${styles.input}
             `}
             id="width"
@@ -69,7 +69,7 @@ export default function Home() {
                 value: parseInt(e.target.value),
                 min: minValues.width,
                 max: maxValues.width,
-                elementId: "width",
+                elementId: 'width',
               });
             }}
           />
@@ -77,7 +77,7 @@ export default function Home() {
           <label htmlFor="height">Height</label>
           <input
             className={`
-              ${invalidElements.includes("height") ? styles.invalid : ""}
+              ${invalidElements.includes('height') ? styles.invalid : ''}
               ${styles.input}
             `}
             id="height"
@@ -90,7 +90,7 @@ export default function Home() {
                 value: parseInt(e.target.value),
                 min: minValues.height,
                 max: maxValues.height,
-                elementId: "height",
+                elementId: 'height',
               });
             }}
           />
@@ -98,7 +98,7 @@ export default function Home() {
           <label htmlFor="innerWidth">Inner Width</label>
           <input
             className={`
-              ${invalidElements.includes("innerWidth") ? styles.invalid : ""}
+              ${invalidElements.includes('innerWidth') ? styles.invalid : ''}
               ${styles.input}
             `}
             id="innerWidth"
@@ -111,7 +111,7 @@ export default function Home() {
                 value: parseInt(e.target.value),
                 min: minValues.innerWidth,
                 max: maxValues.innerWidth,
-                elementId: "innerWidth",
+                elementId: 'innerWidth',
               });
             }}
           />
@@ -119,7 +119,7 @@ export default function Home() {
           <label htmlFor="innerHeight">Inner Height</label>
           <input
             className={`
-              ${invalidElements.includes("innerHeight") ? styles.invalid : ""}
+              ${invalidElements.includes('innerHeight') ? styles.invalid : ''}
               ${styles.input}
             `}
             id="innerHeight"
@@ -132,7 +132,7 @@ export default function Home() {
                 value: parseInt(e.target.value),
                 min: minValues.innerHeight,
                 max: maxValues.innerHeight,
-                elementId: "innerHeight",
+                elementId: 'innerHeight',
               });
             }}
           />
@@ -169,6 +169,11 @@ export default function Home() {
             <FaFlag /> Solution
           </button>
         </div>
+        <canvas
+          id="mazeCanvas"
+          width="0"
+          height="0"
+        ></canvas>
       </main>
     </div>
   );
