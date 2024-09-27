@@ -1,3 +1,13 @@
+interface MazeGenerationConfig {
+  width: number;
+  height: number;
+  innerWidth: number;
+  innerHeight: number;
+  invalidElements: string[];
+  minValues: Record<string, number>;
+  maxValues: Record<string, number>;
+}
+
 class MazeGenerator {
   maze: number[][];
 
@@ -7,9 +17,9 @@ class MazeGenerator {
 
   initMaze(): number[][] {
     const maze = [];
-    for (let y = 0; y < this.height * 2 + 1; y++) {
+    for (let y = 0; y < this.height; y++) {
       const row = [];
-      for (let x = 0; x < this.width * 2 + 1; x++) {
+      for (let x = 0; x < this.width; x++) {
         row.push(1);
       }
       maze.push(row);
@@ -18,19 +28,19 @@ class MazeGenerator {
   }
 
   generateMaze(): void {
-    // Randomly select a starting point, ensure it's an odd number.
-    const x = Math.floor(Math.random() * this.width) * 2 + 1;
-    const y = Math.floor(Math.random() * this.height) * 2 + 1;
+    this.width = this.turnToOddNumber(this.width);
+    this.height = this.turnToOddNumber(this.height);
+
+    this.maze = this.initMaze();
+
+    const x = this.randomOddNumber(1, this.width - 2);
+    const y = this.randomOddNumber(1, this.height - 2);
+
     this.maze[y][x] = 0;
-
     this.carveMaze(x, y);
+    this.updateMazeCanvas()
+}
 
-    // Create an entry and an exit
-    this.maze[1][0] = 0; // Entry
-    this.maze[this.height * 2 - 1][this.width * 2] = 0; // Exit
-  }
-
-  // Carve maze using recursive backtracking
   carveMaze(x: number, y: number) {
     const dirs = [
       [-2, 0],
@@ -43,29 +53,51 @@ class MazeGenerator {
       const [dx, dy] = dirs[i];
       const nx = x + dx;
       const ny = y + dy;
-
       if (
         ny > 0 &&
-        ny < this.height * 2 &&
+        ny < this.height - 1 &&
         nx > 0 &&
-        nx < this.width * 2 &&
+        nx < this.width - 1 &&
         this.maze[ny][nx] === 1
       ) {
-        this.maze[ny - dy / 2][nx - dx / 2] = this.maze[ny][nx] = 0;
+        this.maze[ny - dy / 2][nx - dx / 2] = 0;
+        this.maze[ny][nx] = 0;
         this.carveMaze(nx, ny);
       }
     }
   }
-}
+  
+  updateMazeCanvas(): void {
+    const mazeCanvas = document.getElementById('mazeCanvas') as HTMLCanvasElement;
+    const ctx = mazeCanvas.getContext('2d');
+    const multiplier = 10;
+    const newWidth = this.width * multiplier;
+    const newHeight = this.height * multiplier;
+    if (!ctx) return;
 
-interface MazeGenerationConfig {
-  width: number;
-  height: number;
-  innerWidth: number;
-  innerHeight: number;
-  invalidElements: string[];
-  minValues: Record<string, number>;
-  maxValues: Record<string, number>;
+    mazeCanvas.width = newWidth;
+    mazeCanvas.height = newHeight;
+
+    for (let y = 0; y < this.maze.length; y++) {
+      for (let x = 0; x < this.maze[y].length; x++) {
+        if (this.maze[y][x] === 1) {
+          ctx.fillStyle = 'black';
+        } else {
+          ctx.fillStyle = 'white';
+        }
+        ctx.fillRect(x * multiplier, y * multiplier, multiplier, multiplier);
+      }
+    }
+  }
+
+  turnToOddNumber(value: number): number {
+    return value % 2 === 0 ? value + 1 : value;
+  }
+
+  randomOddNumber(min: number, max: number): number {
+    const num = Math.floor(Math.random() * (max - min)) + min;
+    return num % 2 === 0 ? num + 1 : num;
+  }
 }
 
 export function handleGenerationButtonClicked(
@@ -76,34 +108,6 @@ export function handleGenerationButtonClicked(
 
   const mazeGenerator = new MazeGenerator(values.width, values.height);
   mazeGenerator.generateMaze();
-
-  updateMazeCanvas(mazeGenerator.maze, values);
-}
-
-function updateMazeCanvas(
-  maze: number[][],
-  values: MazeGenerationConfig
-): void {
-  const mazeCanvas = document.getElementById('mazeCanvas') as HTMLCanvasElement;
-  const ctx = mazeCanvas.getContext('2d');
-  const multiplier = 10;
-  const newWidth = (values.width * 2 + 1) * multiplier;
-  const newHeight = (values.height * 2 + 1) * multiplier;
-  if (!ctx) return;
-
-  mazeCanvas.width = newWidth;
-  mazeCanvas.height = newHeight;
-
-  for (let y = 0; y < maze.length; y++) {
-    for (let x = 0; x < maze[y].length; x++) {
-      if (maze[y][x] === 1) {
-        ctx.fillStyle = 'black';
-      } else {
-        ctx.fillStyle = 'white';
-      }
-      ctx.fillRect(x * multiplier, y * multiplier, multiplier, multiplier);
-    }
-  }
 }
 
 function validateElements({
@@ -132,7 +136,6 @@ function validateElements({
   return true;
 }
 
-
 export function handleSolutionButtonClicked(): void {
-  console.log("clicked solution");
+  console.log('clicked solution');
 }
