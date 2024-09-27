@@ -1,32 +1,32 @@
-"use client";
-import { useState } from "react";
-import { FaFlag, FaGear } from "react-icons/fa6";
+'use client';
+import { useState } from 'react';
+import { FaFlag, FaGear } from 'react-icons/fa6';
 import {
   handleGenerationButtonClicked,
   handleSolutionButtonClicked,
-} from "./maze-button-handler";
-import styles from "./page.module.css";
+} from './maze-button-handler';
+import styles from './page.module.css';
 
 const minValues: Record<string, number> = {
-  width: 5,
-  height: 5,
+  width: 7,
+  height: 7,
   innerWidth: 0,
   innerHeight: 0,
 };
 
 const maxValues: Record<string, number> = {
-  width: 75,
-  height: 75,
-  innerWidth: 70,
-  innerHeight: 70,
+  width: 200,
+  height: 200,
+  innerWidth: 195,
+  innerHeight: 195,
 };
 
 export default function Home() {
-  const [width, setWidth] = useState("");
-  const [height, setHeight] = useState("");
-  const [innerWidth, setInnerWidth] = useState("");
-  const [innerHeight, setInnerHeight] = useState("");
-  const [startingPoint, setStartingPoint] = useState("top");
+  const [width, setWidth] = useState('');
+  const [height, setHeight] = useState('');
+  const [innerWidth, setInnerWidth] = useState('');
+  const [innerHeight, setInnerHeight] = useState('');
+  const [startingPoint, setStartingPoint] = useState('top');
   const [invalidElements, setInvalidElements] = useState<string[]>([]);
 
   const validateElement = ({
@@ -144,9 +144,8 @@ export default function Home() {
             onChange={(e) => setStartingPoint(e.target.value)}
           >
             <option value="top">Top</option>
-            <option value="bottom">Bottom</option>
-            <option value="left">Left</option>
-            <option value="right">Right</option>
+            <option value="side">Side</option>
+            <option value="none">None</option>
           </select>
         </div>
         <div>
@@ -160,6 +159,7 @@ export default function Home() {
                 invalidElements,
                 minValues,
                 maxValues,
+                startingPoint,
               })
             }
           >
@@ -169,11 +169,7 @@ export default function Home() {
             <FaFlag /> Solution
           </button>
         </div>
-        <canvas
-          id="mazeCanvas"
-          width="0"
-          height="0"
-        ></canvas>
+        <canvas id="mazeCanvas" width="0" height="0"></canvas>
       </main>
     </div>
   );

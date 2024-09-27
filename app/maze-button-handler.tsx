@@ -6,12 +6,19 @@ interface MazeGenerationConfig {
   invalidElements: string[];
   minValues: Record<string, number>;
   maxValues: Record<string, number>;
+  startingPoint: string;
 }
 
 class MazeGenerator {
   maze: number[][];
 
-  constructor(public width: number, public height: number) {
+  constructor(
+    public width: number,
+    public height: number,
+    public startingPoint: string
+  ) {
+    this.width = this.turnToOddNumber(this.width);
+    this.height = this.turnToOddNumber(this.height);
     this.maze = this.initMaze();
   }
 
@@ -28,18 +35,16 @@ class MazeGenerator {
   }
 
   generateMaze(): void {
-    this.width = this.turnToOddNumber(this.width);
-    this.height = this.turnToOddNumber(this.height);
-
     this.maze = this.initMaze();
+    this.createEntryForMaze();
 
     const x = this.randomOddNumber(1, this.width - 2);
     const y = this.randomOddNumber(1, this.height - 2);
 
     this.maze[y][x] = 0;
     this.carveMaze(x, y);
-    this.updateMazeCanvas()
-}
+    this.updateMazeCanvas();
+  }
 
   carveMaze(x: number, y: number) {
     const dirs = [
@@ -66,9 +71,11 @@ class MazeGenerator {
       }
     }
   }
-  
+
   updateMazeCanvas(): void {
-    const mazeCanvas = document.getElementById('mazeCanvas') as HTMLCanvasElement;
+    const mazeCanvas = document.getElementById(
+      'mazeCanvas'
+    ) as HTMLCanvasElement;
     const ctx = mazeCanvas.getContext('2d');
     const multiplier = 10;
     const newWidth = this.width * multiplier;
@@ -90,6 +97,23 @@ class MazeGenerator {
     }
   }
 
+  createEntryForMaze(): void {
+    switch (this.startingPoint) {
+      case 'top':
+        const middlePointX = this.turnToOddNumber(Math.floor(this.width / 2));
+        this.maze[0][middlePointX] = 0;
+        this.maze[this.height - 1][middlePointX] = 0;
+        break;
+      case 'side':
+        const middlePointY = this.turnToOddNumber(Math.floor(this.height / 2));
+        this.maze[middlePointY][0] = 0;
+        this.maze[middlePointY][this.width - 1] = 0;
+        break;
+      default:
+        break;
+    }
+  }
+
   turnToOddNumber(value: number): number {
     return value % 2 === 0 ? value + 1 : value;
   }
@@ -106,7 +130,11 @@ export function handleGenerationButtonClicked(
   const isValid = validateElements(values);
   if (!isValid) return;
 
-  const mazeGenerator = new MazeGenerator(values.width, values.height);
+  const mazeGenerator = new MazeGenerator(
+    values.width,
+    values.height,
+    values.startingPoint
+  );
   mazeGenerator.generateMaze();
 }
 
