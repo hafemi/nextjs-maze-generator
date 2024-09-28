@@ -53,15 +53,14 @@ class MazeGenerator {
     return maze;
   }
 
-  generateMaze(): void {
-    this.maze = this.initMaze();
-    this.createEntryForMaze();
-
+  async generateMaze(): Promise<void> {
     const x = this.randomOddNumber(1, this.width - 2);
     const y = this.randomOddNumber(1, this.height - 2);
-
+    
+    this.maze = this.initMaze();
     this.maze[y][x] = 0;
-    this.carveMaze(x, y);
+    await this.carveMaze(x, y);
+    this.createEntryForMaze();
     this.updateMazeCanvas();
   }
 
@@ -122,7 +121,7 @@ class MazeGenerator {
         ctx.fillRect(x * multiplier, y * multiplier, multiplier, multiplier);
       }
     }
-  }
+  } 
 
   createEntryForMaze(): void {
     switch (this.startingPoint) {
