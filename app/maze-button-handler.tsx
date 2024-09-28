@@ -1,3 +1,18 @@
+export function handleGenerationButtonClicked(
+  values: MazeGenerationConfig
+): void {
+  const isValid = validateElements(values);
+  if (!isValid) return;
+
+  const mazeGenerator = new MazeGenerator(
+    values.width,
+    values.height,
+    values.startingPoint,
+    values.animateCheckbox,
+    values.animationSpeed
+  );
+  mazeGenerator.generateMaze();
+}
 interface MazeGenerationConfig {
   width: number;
   height: number;
@@ -7,6 +22,8 @@ interface MazeGenerationConfig {
   minValues: Record<string, number>;
   maxValues: Record<string, number>;
   startingPoint: string;
+  animateCheckbox: boolean;
+  animationSpeed: number;
 }
 
 class MazeGenerator {
@@ -15,7 +32,9 @@ class MazeGenerator {
   constructor(
     public width: number,
     public height: number,
-    public startingPoint: string
+    public startingPoint: string,
+    public animateCheckbox: boolean,
+    public animationSpeed: number
   ) {
     this.width = this.turnToOddNumber(this.width);
     this.height = this.turnToOddNumber(this.height);
@@ -46,7 +65,7 @@ class MazeGenerator {
     this.updateMazeCanvas();
   }
 
-  carveMaze(x: number, y: number) {
+  async carveMaze(x: number, y: number ): Promise<void> {
     const dirs = [
       [-2, 0],
       [2, 0],
@@ -58,6 +77,7 @@ class MazeGenerator {
       const [dx, dy] = dirs[i];
       const nx = x + dx;
       const ny = y + dy;
+
       if (
         ny > 0 &&
         ny < this.height - 1 &&
@@ -67,7 +87,14 @@ class MazeGenerator {
       ) {
         this.maze[ny - dy / 2][nx - dx / 2] = 0;
         this.maze[ny][nx] = 0;
-        this.carveMaze(nx, ny);
+
+        if (this.animateCheckbox) {
+          this.updateMazeCanvas();
+          await sleep(this.animationSpeed);
+          await this.carveMaze(nx, ny)
+        } else {
+          this.carveMaze(nx, ny);
+        }
       }
     }
   }
@@ -124,20 +151,6 @@ class MazeGenerator {
   }
 }
 
-export function handleGenerationButtonClicked(
-  values: MazeGenerationConfig
-): void {
-  const isValid = validateElements(values);
-  if (!isValid) return;
-
-  const mazeGenerator = new MazeGenerator(
-    values.width,
-    values.height,
-    values.startingPoint
-  );
-  mazeGenerator.generateMaze();
-}
-
 function validateElements({
   width,
   height,
@@ -166,4 +179,8 @@ function validateElements({
 
 export function handleSolutionButtonClicked(): void {
   console.log('clicked solution');
+}
+
+async function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }

@@ -8,8 +8,8 @@ import {
 import styles from './page.module.css';
 
 const minValues: Record<string, number> = {
-  width: 7,
-  height: 7,
+  width: 5,
+  height: 5,
   innerWidth: 0,
   innerHeight: 0,
 };
@@ -27,6 +27,8 @@ export default function Home() {
   const [innerWidth, setInnerWidth] = useState('');
   const [innerHeight, setInnerHeight] = useState('');
   const [startingPoint, setStartingPoint] = useState('top');
+  const [animateCheckbox, setAnimateCheckbox] = useState(false);
+  const [animationSpeed, setAnimationSpeed] = useState(0);
   const [invalidElements, setInvalidElements] = useState<string[]>([]);
 
   const validateElement = ({
@@ -147,6 +149,26 @@ export default function Home() {
             <option value="side">Side</option>
             <option value="none">None</option>
           </select>
+          <br />
+          <label htmlFor="animationSpeedCheckbox">Animation Speed</label>
+          <input
+            id="animationSpeedCheckbox"
+            type="checkbox"
+            onChange={() => {
+              setAnimateCheckbox(!animateCheckbox);
+            }}
+          />
+          {animateCheckbox && (
+            <div>
+              <label htmlFor="speedInMS">Speed (ms) </label>
+              <input
+                id="speedInMS"
+                type="number"
+                placeholder="100"
+                onChange= {(e) => setAnimationSpeed(parseInt(e.target.value))}
+              />
+            </div>
+          )}
         </div>
         <div>
           <button
@@ -160,6 +182,8 @@ export default function Home() {
                 minValues,
                 maxValues,
                 startingPoint,
+                animateCheckbox,
+                animationSpeed,
               })
             }
           >
