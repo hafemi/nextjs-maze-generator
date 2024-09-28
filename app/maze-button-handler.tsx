@@ -135,6 +135,14 @@ class MazeGenerator {
         this.maze[middlePointY][0] = 0;
         this.maze[middlePointY][this.width - 1] = 0;
         break;
+      case 'topleft':
+        this.maze[0][1] = 0;
+        this.maze[this.height - 1][this.width - 2] = 0;
+        break;
+      case 'lefttop':
+        this.maze[1][0] = 0;
+        this.maze[this.height - 2][this.width - 1] = 0;
+        break;
       default:
         break;
     }
