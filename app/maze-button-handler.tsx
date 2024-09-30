@@ -1,8 +1,10 @@
-export function handleGenerationButtonClicked(
-  values: MazeGenerationConfig
-): void {
+import { Dispatch, SetStateAction } from "react";
+
+export function handleGenerationButtonClicked(values: MazeGenerationConfig): void {
   const isValid = validateElements(values);
   if (!isValid) return;
+  if (values.maze)
+    values.maze.stopCarving = true;
 
   const mazeGenerator = new MazeGenerator(
     values.width,
@@ -11,6 +13,7 @@ export function handleGenerationButtonClicked(
     values.animateCheckbox,
     values.animationSpeed
   );
+  values.setMaze(mazeGenerator);
   mazeGenerator.generateMaze();
 }
 interface MazeGenerationConfig {
@@ -24,10 +27,13 @@ interface MazeGenerationConfig {
   startingPoint: string;
   animateCheckbox: boolean;
   animationSpeed: number;
+  maze: MazeGenerator | null;
+  setMaze: Dispatch<SetStateAction<MazeGenerator | null>>;
 }
 
-class MazeGenerator {
-  maze: number[][];
+export class MazeGenerator {
+  private maze: number[][];
+  stopCarving: boolean = false;
 
   constructor(
     public width: number,
@@ -56,15 +62,18 @@ class MazeGenerator {
   async generateMaze(): Promise<void> {
     const x = this.randomOddNumber(1, this.width - 2);
     const y = this.randomOddNumber(1, this.height - 2);
-    
+
     this.maze = this.initMaze();
     this.maze[y][x] = 0;
     await this.carveMaze(x, y);
+    if (this.stopCarving) return;
     this.createEntryForMaze();
     this.updateMazeCanvas();
   }
 
-  async carveMaze(x: number, y: number ): Promise<void> {
+  async carveMaze(x: number, y: number): Promise<void> {
+    if (this.stopCarving) return;
+
     const dirs = [
       [-2, 0],
       [2, 0],
@@ -77,20 +86,14 @@ class MazeGenerator {
       const nx = x + dx;
       const ny = y + dy;
 
-      if (
-        ny > 0 &&
-        ny < this.height - 1 &&
-        nx > 0 &&
-        nx < this.width - 1 &&
-        this.maze[ny][nx] === 1
-      ) {
+      if (ny > 0 && ny < this.height - 1 && nx > 0 && nx < this.width - 1 && this.maze[ny][nx] === 1) {
         this.maze[ny - dy / 2][nx - dx / 2] = 0;
         this.maze[ny][nx] = 0;
 
-        if (this.animateCheckbox) {
+        if (this.animateCheckbox && !this.stopCarving) {
           this.updateMazeCanvas();
           await sleep(this.animationSpeed);
-          await this.carveMaze(nx, ny)
+          await this.carveMaze(nx, ny);
         } else {
           this.carveMaze(nx, ny);
         }
@@ -99,14 +102,12 @@ class MazeGenerator {
   }
 
   updateMazeCanvas(): void {
-    const mazeCanvas = document.getElementById(
-      'mazeCanvas'
-    ) as HTMLCanvasElement;
+    const mazeCanvas = document.getElementById('mazeCanvas') as HTMLCanvasElement;
     const ctx = mazeCanvas.getContext('2d');
     const multiplier = 10;
     const newWidth = this.width * multiplier;
     const newHeight = this.height * multiplier;
-    if (!ctx) return;
+    if (!ctx || this.stopCarving) return;
 
     mazeCanvas.width = newWidth;
     mazeCanvas.height = newHeight;
@@ -121,7 +122,7 @@ class MazeGenerator {
         ctx.fillRect(x * multiplier, y * multiplier, multiplier, multiplier);
       }
     }
-  } 
+  }
 
   createEntryForMaze(): void {
     switch (this.startingPoint) {

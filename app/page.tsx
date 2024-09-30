@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { FaFlag, FaGear } from 'react-icons/fa6';
 import {
+  MazeGenerator,
   handleGenerationButtonClicked,
   handleSolutionButtonClicked,
 } from './maze-button-handler';
@@ -30,6 +31,7 @@ export default function Home() {
   const [animateCheckbox, setAnimateCheckbox] = useState(false);
   const [animationSpeed, setAnimationSpeed] = useState(0);
   const [invalidElements, setInvalidElements] = useState<string[]>([]);
+  const [maze, setMaze] = useState<MazeGenerator | null>(null);
 
   const validateElement = ({
     value,
@@ -186,6 +188,8 @@ export default function Home() {
                 startingPoint,
                 animateCheckbox,
                 animationSpeed,
+                maze,
+                setMaze
               })
             }
           >
