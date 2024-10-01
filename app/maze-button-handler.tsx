@@ -1,6 +1,6 @@
 import { Dispatch, SetStateAction } from 'react';
 
-enum CellValues {
+enum MazeCellValue {
   Path = 0,
   Wall = 1,
   Solution = 2,
@@ -67,7 +67,7 @@ export class MazeGenerator {
     for (let y = 0; y < this.height; y++) {
       const row = [];
       for (let x = 0; x < this.width; x++) {
-        row.push(CellValues.Wall);
+        row.push(MazeCellValue.Wall);
       }
       maze.push(row);
     }
@@ -79,7 +79,7 @@ export class MazeGenerator {
     const y = this.randomOddNumber(1, this.height - 2);
 
     this.maze = this.initMaze();
-    this.maze[y][x] = CellValues.Path;
+    this.maze[y][x] = MazeCellValue.Path;
     await this.carveMaze(x, y);
 
     if (this.isGenerating) {
@@ -110,11 +110,11 @@ export class MazeGenerator {
         ny < this.height - 1 &&
         nx > 0 &&
         nx < this.width - 1 &&
-        this.maze[ny][nx] === CellValues.Wall &&
+        this.maze[ny][nx] === MazeCellValue.Wall &&
         this.isGenerating
       ) {
-        this.maze[ny - dy / 2][nx - dx / 2] = CellValues.Path;
-        this.maze[ny][nx] = CellValues.Path;
+        this.maze[ny - dy / 2][nx - dx / 2] = MazeCellValue.Path;
+        this.maze[ny][nx] = MazeCellValue.Path;
 
         if (this.animateCheckbox) {
           this.updateMazeCanvas(false);
@@ -140,9 +140,9 @@ export class MazeGenerator {
 
     for (let y = 0; y < this.maze.length; y++) {
       for (let x = 0; x < this.maze[y].length; x++) {
-        if (this.maze[y][x] === CellValues.Wall) {
+        if (this.maze[y][x] === MazeCellValue.Wall) {
           ctx.fillStyle = 'black';
-        } else if (this.maze[y][x] === CellValues.Solution && showSolutionCheckbox) {
+        } else if (this.maze[y][x] === MazeCellValue.Solution && showSolutionCheckbox) {
           ctx.fillStyle = 'red';
         } else {
           ctx.fillStyle = 'white';
@@ -156,27 +156,27 @@ export class MazeGenerator {
     switch (this.startingPoint) {
       case 'top':
         const middlePointX = this.turnToOddNumber(Math.floor(this.width / 2));
-        this.maze[0][middlePointX] = CellValues.Path;
-        this.maze[this.height - 1][middlePointX] = CellValues.Path;
+        this.maze[0][middlePointX] = MazeCellValue.Path;
+        this.maze[this.height - 1][middlePointX] = MazeCellValue.Path;
         this.entryPoint = { row: 0, col: middlePointX };
         this.exitPoint = { row: this.height - 1, col: middlePointX };
         break;
       case 'side':
         const middlePointY = this.turnToOddNumber(Math.floor(this.height / 2));
-        this.maze[middlePointY][0] = CellValues.Path;
-        this.maze[middlePointY][this.width - 1] = CellValues.Path;
+        this.maze[middlePointY][0] = MazeCellValue.Path;
+        this.maze[middlePointY][this.width - 1] = MazeCellValue.Path;
         this.entryPoint = { row: middlePointY, col: 0 };
         this.exitPoint = { row: middlePointY, col: this.width - 1 };
         break;
       case 'topleft':
-        this.maze[0][1] = CellValues.Path;
-        this.maze[this.height - 1][this.width - 2] = CellValues.Path;
+        this.maze[0][1] = MazeCellValue.Path;
+        this.maze[this.height - 1][this.width - 2] = MazeCellValue.Path;
         this.entryPoint = { row: 0, col: 1 };
         this.exitPoint = { row: this.height - 1, col: this.width - 2 };
         break;
       case 'lefttop':
-        this.maze[1][0] = CellValues.Path;
-        this.maze[this.height - 2][this.width - 1] = CellValues.Path;
+        this.maze[1][0] = MazeCellValue.Path;
+        this.maze[this.height - 2][this.width - 1] = MazeCellValue.Path;
         this.entryPoint = { row: 1, col: 0 };
         this.exitPoint = { row: this.height - 2, col: this.width - 1 };
         break;
@@ -196,7 +196,7 @@ export class MazeGenerator {
 
   async solveMaze(startRow: number, startCol: number): Promise<void> {
     if (this.startingPoint !== 'none' && await this.explore(startRow, startCol)) {
-      this.maze[this.exitPoint.row][this.exitPoint.col] = CellValues.Solution;
+      this.maze[this.exitPoint.row][this.exitPoint.col] = MazeCellValue.Solution;
     }
   }
 
@@ -208,11 +208,11 @@ export class MazeGenerator {
       right: { row: 0, col: 1 },
     };
     const directions = ['up', 'down', 'left', 'right'];
-    if (!isValid(row, col, this.maze) || this.maze[row][col] !== CellValues.Path || !this.isGenerating) {
+    if (!isValid(row, col, this.maze) || this.maze[row][col] !== MazeCellValue.Path || !this.isGenerating) {
       return false;
     }
 
-    this.maze[row][col] = CellValues.Solution;
+    this.maze[row][col] = MazeCellValue.Solution;
     if (this.showSolutionCheckbox && this.animateCheckbox) {
       this.updateMazeCanvas(this.showSolutionCheckbox);
       await sleep(this.animationSpeed);
@@ -229,7 +229,7 @@ export class MazeGenerator {
       }
     }
 
-    this.maze[row][col] = CellValues.Path;
+    this.maze[row][col] = MazeCellValue.Path;
     return false;
 
     function isValid(row: number, col: number, maze: number[][]): boolean {
