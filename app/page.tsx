@@ -180,7 +180,7 @@ export default function Home() {
             type="checkbox"
             onChange={(e) => {
               setShowSolutionCheckbox(e.target.checked);
-              if (!maze) return;
+              if (!maze || maze.isGenerating) return;
               
               if (e.target.checked) {
                 maze.updateMazeCanvas(true);
