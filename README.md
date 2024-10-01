@@ -1,1 +1,2 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app), and my first HTML/CSS project that I will be working on to learn Web Development.
+# Maze Generator Overview
+A Maze Generator that involves multiple different features but was mainly built as a learning project, as I've never done something with web before, with TypeScript, HTML/CSS and React along [NextJS](https://nextjs.org/) as framework. Readme will be updated in the end.<br/>
