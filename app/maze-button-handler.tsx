@@ -195,7 +195,7 @@ export class MazeGenerator {
   }
 
   async solveMaze(startRow: number, startCol: number): Promise<void> {
-    if (await this.explore(startRow, startCol)) {
+    if (this.startingPoint !== 'none' && await this.explore(startRow, startCol)) {
       this.maze[this.exitPoint.row][this.exitPoint.col] = CellValues.Solution;
     }
   }
