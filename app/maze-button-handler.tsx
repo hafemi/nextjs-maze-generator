@@ -1,17 +1,17 @@
-import { Dispatch, SetStateAction } from "react";
+import { Dispatch, SetStateAction } from 'react';
 
 export function handleGenerationButtonClicked(values: MazeGenerationConfig): void {
   const isValid = validateElements(values);
   if (!isValid) return;
-  if (values.maze)
-    values.maze.stopCarving = true;
+  if (values.maze) values.maze.isGenerating = false;
 
   const mazeGenerator = new MazeGenerator(
     values.width,
     values.height,
     values.startingPoint,
     values.animateCheckbox,
-    values.animationSpeed
+    values.animationSpeed,
+    values.showSolutionCheckbox
   );
   values.setMaze(mazeGenerator);
   mazeGenerator.generateMaze();
@@ -27,20 +27,29 @@ interface MazeGenerationConfig {
   startingPoint: string;
   animateCheckbox: boolean;
   animationSpeed: number;
+  showSolutionCheckbox: boolean;
   maze: MazeGenerator | null;
   setMaze: Dispatch<SetStateAction<MazeGenerator | null>>;
 }
 
+interface Coordinate {
+  row: number;
+  col: number;
+}
+
 export class MazeGenerator {
-  private maze: number[][];
-  stopCarving: boolean = false;
+  maze: number[][];
+  entryPoint: Coordinate = { row: 0, col: 0 };
+  exitPoint: Coordinate = { row: 0, col: 0 };
+  isGenerating: boolean = true;
 
   constructor(
     public width: number,
     public height: number,
     public startingPoint: string,
     public animateCheckbox: boolean,
-    public animationSpeed: number
+    public animationSpeed: number,
+    public showSolutionCheckbox: boolean
   ) {
     this.width = this.turnToOddNumber(this.width);
     this.height = this.turnToOddNumber(this.height);
@@ -66,13 +75,17 @@ export class MazeGenerator {
     this.maze = this.initMaze();
     this.maze[y][x] = 0;
     await this.carveMaze(x, y);
-    if (this.stopCarving) return;
-    this.createEntryForMaze();
-    this.updateMazeCanvas();
+
+    if (this.isGenerating) {
+      this.createEntryAndExitForMaze();
+      await this.solveMaze(this.entryPoint.row, this.entryPoint.col);
+      this.updateMazeCanvas(this.showSolutionCheckbox);
+      this.isGenerating = false;
+    }
   }
 
   async carveMaze(x: number, y: number): Promise<void> {
-    if (this.stopCarving) return;
+    if (!this.isGenerating) return;
 
     const dirs = [
       [-2, 0],
@@ -86,12 +99,19 @@ export class MazeGenerator {
       const nx = x + dx;
       const ny = y + dy;
 
-      if (ny > 0 && ny < this.height - 1 && nx > 0 && nx < this.width - 1 && this.maze[ny][nx] === 1) {
+      if (
+        ny > 0 &&
+        ny < this.height - 1 &&
+        nx > 0 &&
+        nx < this.width - 1 &&
+        this.maze[ny][nx] === 1 &&
+        this.isGenerating
+      ) {
         this.maze[ny - dy / 2][nx - dx / 2] = 0;
         this.maze[ny][nx] = 0;
 
-        if (this.animateCheckbox && !this.stopCarving) {
-          this.updateMazeCanvas();
+        if (this.animateCheckbox) {
+          this.updateMazeCanvas(false);
           await sleep(this.animationSpeed);
           await this.carveMaze(nx, ny);
         } else {
@@ -101,13 +121,13 @@ export class MazeGenerator {
     }
   }
 
-  updateMazeCanvas(): void {
+  updateMazeCanvas(showSolutionCheckbox: boolean): void {
     const mazeCanvas = document.getElementById('mazeCanvas') as HTMLCanvasElement;
     const ctx = mazeCanvas.getContext('2d');
     const multiplier = 10;
     const newWidth = this.width * multiplier;
     const newHeight = this.height * multiplier;
-    if (!ctx || this.stopCarving) return;
+    if (!ctx) return;
 
     mazeCanvas.width = newWidth;
     mazeCanvas.height = newHeight;
@@ -116,6 +136,8 @@ export class MazeGenerator {
       for (let x = 0; x < this.maze[y].length; x++) {
         if (this.maze[y][x] === 1) {
           ctx.fillStyle = 'black';
+        } else if (this.maze[y][x] === 2 && showSolutionCheckbox) {
+          ctx.fillStyle = 'red';
         } else {
           ctx.fillStyle = 'white';
         }
@@ -124,25 +146,33 @@ export class MazeGenerator {
     }
   }
 
-  createEntryForMaze(): void {
+  createEntryAndExitForMaze(): void {
     switch (this.startingPoint) {
       case 'top':
         const middlePointX = this.turnToOddNumber(Math.floor(this.width / 2));
         this.maze[0][middlePointX] = 0;
         this.maze[this.height - 1][middlePointX] = 0;
+        this.entryPoint = { row: 0, col: middlePointX };
+        this.exitPoint = { row: this.height - 1, col: middlePointX };
         break;
       case 'side':
         const middlePointY = this.turnToOddNumber(Math.floor(this.height / 2));
         this.maze[middlePointY][0] = 0;
         this.maze[middlePointY][this.width - 1] = 0;
+        this.entryPoint = { row: middlePointY, col: 0 };
+        this.exitPoint = { row: middlePointY, col: this.width - 1 };
         break;
       case 'topleft':
         this.maze[0][1] = 0;
         this.maze[this.height - 1][this.width - 2] = 0;
+        this.entryPoint = { row: 0, col: 1 };
+        this.exitPoint = { row: this.height - 1, col: this.width - 2 };
         break;
       case 'lefttop':
         this.maze[1][0] = 0;
         this.maze[this.height - 2][this.width - 1] = 0;
+        this.entryPoint = { row: 1, col: 0 };
+        this.exitPoint = { row: this.height - 2, col: this.width - 1 };
         break;
       default:
         break;
@@ -156,6 +186,49 @@ export class MazeGenerator {
   randomOddNumber(min: number, max: number): number {
     const num = Math.floor(Math.random() * (max - min)) + min;
     return num % 2 === 0 ? num + 1 : num;
+  }
+
+  async solveMaze(startRow: number, startCol: number): Promise<void> {
+    if (await this.explore(startRow, startCol)) {
+      this.maze[this.exitPoint.row][this.exitPoint.col] = 2;
+    }
+  }
+
+  async explore(row: number, col: number): Promise<boolean> {
+    const directionOffsets: { [key: string]: Coordinate } = {
+      up: { row: -1, col: 0 },
+      down: { row: 1, col: 0 },
+      left: { row: 0, col: -1 },
+      right: { row: 0, col: 1 },
+    };
+    const directions = ['up', 'down', 'left', 'right'];
+    if (!isValid(row, col, this.maze) || this.maze[row][col] !== 0 || !this.isGenerating) {
+      return false;
+    }
+
+    this.maze[row][col] = 2;
+    if (this.showSolutionCheckbox && this.animateCheckbox) {
+      this.updateMazeCanvas(this.showSolutionCheckbox);
+      await sleep(this.animationSpeed);
+    }
+
+    if (row === this.exitPoint.row && col === this.exitPoint.col) {
+      return true;
+    }
+
+    for (const direction of directions) {
+      const { row: dRow, col: dCol } = directionOffsets[direction];
+      if (await this.explore(row + dRow, col + dCol)) {
+        return true;
+      }
+    }
+
+    this.maze[row][col] = 0;
+    return false;
+
+    function isValid(row: number, col: number, maze: number[][]): boolean {
+      return row >= 0 && row < maze.length && col >= 0 && col < maze[row].length;
+    }
   }
 }
 
@@ -183,10 +256,6 @@ function validateElements({
   }
 
   return true;
-}
-
-export function handleSolutionButtonClicked(): void {
-  console.log('clicked solution');
 }
 
 async function sleep(ms: number): Promise<void> {

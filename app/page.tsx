@@ -1,10 +1,9 @@
 'use client';
 import { useState } from 'react';
-import { FaFlag, FaGear } from 'react-icons/fa6';
+import { FaGear } from 'react-icons/fa6';
 import {
   MazeGenerator,
-  handleGenerationButtonClicked,
-  handleSolutionButtonClicked,
+  handleGenerationButtonClicked
 } from './maze-button-handler';
 import styles from './page.module.css';
 
@@ -16,10 +15,10 @@ const minValues: Record<string, number> = {
 };
 
 const maxValues: Record<string, number> = {
-  width: 200,
-  height: 200,
-  innerWidth: 195,
-  innerHeight: 195,
+  width: 150,
+  height: 150,
+  innerWidth: 145,
+  innerHeight: 145,
 };
 
 export default function Home() {
@@ -30,6 +29,7 @@ export default function Home() {
   const [startingPoint, setStartingPoint] = useState('top');
   const [animateCheckbox, setAnimateCheckbox] = useState(false);
   const [animationSpeed, setAnimationSpeed] = useState(0);
+  const [showSolutionCheckbox, setShowSolutionCheckbox] = useState(false);
   const [invalidElements, setInvalidElements] = useState<string[]>([]);
   const [maze, setMaze] = useState<MazeGenerator | null>(null);
 
@@ -173,6 +173,22 @@ export default function Home() {
               />
             </div>
           )}
+          <br />
+          <label htmlFor="showSolutionCheckbox">Show Solution</label>
+          <input
+            id="showSolutionCheckbox"
+            type="checkbox"
+            onChange={(e) => {
+              setShowSolutionCheckbox(e.target.checked);
+              if (!maze) return;
+              
+              if (e.target.checked) {
+                maze.updateMazeCanvas(true);
+              } else {
+                maze.updateMazeCanvas(false);
+              }
+            }}
+          />
         </div>
         <div>
           <button
@@ -189,14 +205,12 @@ export default function Home() {
                 animateCheckbox,
                 animationSpeed,
                 maze,
-                setMaze
+                setMaze,
+                showSolutionCheckbox
               })
             }
           >
             <FaGear /> Generate
-          </button>
-          <button onClick={handleSolutionButtonClicked}>
-            <FaFlag /> Solution
           </button>
         </div>
         <canvas id="mazeCanvas" width="0" height="0"></canvas>
