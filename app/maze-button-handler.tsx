@@ -6,22 +6,6 @@ enum MazeCellValue {
   Solution = 2,
 }
 
-export function handleGenerationButtonClicked(values: MazeGenerationConfig): void {
-  const isValid = validateElements(values);
-  if (!isValid) return;
-  if (values.maze) values.maze.isGenerating = false;
-
-  const mazeGenerator = new MazeGenerator(
-    values.width,
-    values.height,
-    values.startingPoint,
-    values.animateCheckbox,
-    values.animationSpeed,
-    values.showSolutionCheckbox
-  );
-  values.setMaze(mazeGenerator);
-  mazeGenerator.generateMaze();
-}
 interface MazeGenerationConfig {
   width: number;
   height: number;
@@ -34,6 +18,9 @@ interface MazeGenerationConfig {
   animateCheckbox: boolean;
   animationSpeed: number;
   showSolutionCheckbox: boolean;
+  pathColor: string;
+  wallColor: string;
+  solutionColor: string;
   maze: MazeGenerator | null;
   setMaze: Dispatch<SetStateAction<MazeGenerator | null>>;
 }
@@ -41,6 +28,26 @@ interface MazeGenerationConfig {
 interface Coordinate {
   row: number;
   col: number;
+}
+
+export function handleGenerationButtonClicked(values: MazeGenerationConfig): void {
+  const isValid = validateElements(values);
+  if (!isValid) return;
+  if (values.maze) values.maze.isGenerating = false;
+
+  const mazeGenerator = new MazeGenerator(
+    values.width,
+    values.height,
+    values.startingPoint,
+    values.animateCheckbox,
+    values.animationSpeed,
+    values.showSolutionCheckbox,
+    values.pathColor,
+    values.wallColor,
+    values.solutionColor
+  );
+  values.setMaze(mazeGenerator);
+  mazeGenerator.generateMaze();
 }
 
 export class MazeGenerator {
@@ -55,7 +62,10 @@ export class MazeGenerator {
     public startingPoint: string,
     public animateCheckbox: boolean,
     public animationSpeed: number,
-    public showSolutionCheckbox: boolean
+    public showSolutionCheckbox: boolean,
+    public pathColor: string,
+    public wallColor: string,
+    public solutionColor: string
   ) {
     this.width = this.turnToOddNumber(this.width);
     this.height = this.turnToOddNumber(this.height);
@@ -137,15 +147,19 @@ export class MazeGenerator {
 
     mazeCanvas.width = newWidth;
     mazeCanvas.height = newHeight;
+    
+    console.log('pathcolor', this.pathColor);
+    console.log('wallcolor', this.wallColor);
+    console.log('solutioncolor', this.solutionColor);
 
     for (let y = 0; y < this.maze.length; y++) {
       for (let x = 0; x < this.maze[y].length; x++) {
         if (this.maze[y][x] === MazeCellValue.Wall) {
-          ctx.fillStyle = 'black';
+          ctx.fillStyle = this.wallColor;
         } else if (this.maze[y][x] === MazeCellValue.Solution && showSolutionCheckbox) {
-          ctx.fillStyle = 'red';
+          ctx.fillStyle = this.solutionColor;
         } else {
-          ctx.fillStyle = 'white';
+          ctx.fillStyle = this.pathColor;
         }
         ctx.fillRect(x * multiplier, y * multiplier, multiplier, multiplier);
       }

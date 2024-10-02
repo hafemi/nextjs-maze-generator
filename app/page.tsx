@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { Dispatch, SetStateAction, useState } from 'react';
 import { FaGear } from 'react-icons/fa6';
 import {
   MazeGenerator,
@@ -30,6 +30,9 @@ export default function Home() {
   const [animateCheckbox, setAnimateCheckbox] = useState(false);
   const [animationSpeed, setAnimationSpeed] = useState(0);
   const [showSolutionCheckbox, setShowSolutionCheckbox] = useState(false);
+  const [pathColor, setPathColor] = useState('#ff0000');
+  const [wallColor, setWallColor] = useState('#000000');
+  const [solutionColor, setSolutionColor] = useState('#00ff00');
   const [invalidElements, setInvalidElements] = useState<string[]>([]);
   const [maze, setMaze] = useState<MazeGenerator | null>(null);
 
@@ -51,6 +54,28 @@ export default function Home() {
 
     setInvalidElements(invalidElements.filter((id) => id !== elementId));
   };
+  
+  const createColorInput = (
+    id: string,
+    text: string,
+    setFunc: Dispatch<SetStateAction<string>>
+  ): JSX.Element => {
+    return (
+      <div>
+        <label htmlFor={id}>{text}</label>
+        <input
+          type="color"
+          id={id}
+          name={id}
+          defaultValue="#ff0000"
+          onChange={(e) => {
+            console.log(e.target.value);
+            setFunc(e.target.value);
+          }}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className={styles.page}>
@@ -142,11 +167,7 @@ export default function Home() {
           />
           <br />
           <label htmlFor="startingPoint">Starting Point</label>
-          <select
-            id="startingPoint"
-            value={startingPoint}
-            onChange={(e) => setStartingPoint(e.target.value)}
-          >
+          <select id="startingPoint" value={startingPoint} onChange={(e) => setStartingPoint(e.target.value)}>
             <option value="top">Top</option>
             <option value="side">Side</option>
             <option value="topleft">Top Left</option>
@@ -169,7 +190,7 @@ export default function Home() {
                 id="speedInMS"
                 type="number"
                 placeholder="100"
-                onChange= {(e) => setAnimationSpeed(parseInt(e.target.value))}
+                onChange={(e) => setAnimationSpeed(parseInt(e.target.value))}
               />
             </div>
           )}
@@ -181,7 +202,7 @@ export default function Home() {
             onChange={(e) => {
               setShowSolutionCheckbox(e.target.checked);
               if (!maze || maze.isGenerating) return;
-              
+
               if (e.target.checked) {
                 maze.updateMazeCanvas(true);
               } else {
@@ -189,6 +210,11 @@ export default function Home() {
               }
             }}
           />
+        </div>
+        <div>
+          {createColorInput('wallColor', 'Wall Color', setWallColor)}
+          {createColorInput('pathColor', 'Path Color', setPathColor)}
+          {createColorInput('solutionColor', 'Solution Color', setSolutionColor)}
         </div>
         <div>
           <button
@@ -204,9 +230,12 @@ export default function Home() {
                 startingPoint,
                 animateCheckbox,
                 animationSpeed,
+                showSolutionCheckbox,
+                pathColor,
+                wallColor,
+                solutionColor,
                 maze,
                 setMaze,
-                showSolutionCheckbox
               })
             }
           >
