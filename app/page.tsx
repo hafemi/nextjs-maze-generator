@@ -1,10 +1,10 @@
 'use client';
-import { Dispatch, SetStateAction, useState } from 'react';
+import { useState } from 'react';
 import { FaGear } from 'react-icons/fa6';
 import {
   MazeGenerator,
   handleGenerationButtonClicked
-} from './maze-button-handler';
+} from './button-handler';
 import styles from './page.module.css';
 
 const minValues: Record<string, number> = {
@@ -30,9 +30,9 @@ export default function Home() {
   const [animateCheckbox, setAnimateCheckbox] = useState(false);
   const [animationSpeed, setAnimationSpeed] = useState(0);
   const [showSolutionCheckbox, setShowSolutionCheckbox] = useState(false);
-  const [pathColor, setPathColor] = useState('#ff0000');
+  const [pathColor, setPathColor] = useState('#FFFFFF');
   const [wallColor, setWallColor] = useState('#000000');
-  const [solutionColor, setSolutionColor] = useState('#00ff00');
+  const [solutionColor, setSolutionColor] = useState('#FF0000');
   const [invalidElements, setInvalidElements] = useState<string[]>([]);
   const [maze, setMaze] = useState<MazeGenerator | null>(null);
 
@@ -55,26 +55,8 @@ export default function Home() {
     setInvalidElements(invalidElements.filter((id) => id !== elementId));
   };
   
-  const createColorInput = (
-    id: string,
-    text: string,
-    setFunc: Dispatch<SetStateAction<string>>
-  ): JSX.Element => {
-    return (
-      <div>
-        <label htmlFor={id}>{text}</label>
-        <input
-          type="color"
-          id={id}
-          name={id}
-          defaultValue="#ff0000"
-          onChange={(e) => {
-            console.log(e.target.value);
-            setFunc(e.target.value);
-          }}
-        />
-      </div>
-    );
+  const getNumber = (value: string): number => {
+    return isNaN(parseInt(value)) ? 0 : parseInt(value);
   }
 
   return (
@@ -166,6 +148,19 @@ export default function Home() {
             }}
           />
           <br />
+          {animateCheckbox && (
+            <div>
+              <label htmlFor="speedInMS">Speed (ms)</label>
+              <input
+                id="speedInMS"
+                type="number"
+                placeholder="100"
+                onChange={(e) => setAnimationSpeed(parseInt(e.target.value))}
+              />
+            </div>
+          )}
+        </div>
+        <div>
           <label htmlFor="startingPoint">Starting Point</label>
           <select id="startingPoint" value={startingPoint} onChange={(e) => setStartingPoint(e.target.value)}>
             <option value="top">Top</option>
@@ -183,17 +178,6 @@ export default function Home() {
               setAnimateCheckbox(!animateCheckbox);
             }}
           />
-          {animateCheckbox && (
-            <div>
-              <label htmlFor="speedInMS">Speed (ms) </label>
-              <input
-                id="speedInMS"
-                type="number"
-                placeholder="100"
-                onChange={(e) => setAnimationSpeed(parseInt(e.target.value))}
-              />
-            </div>
-          )}
           <br />
           <label htmlFor="showSolutionCheckbox">Show Solution</label>
           <input
@@ -212,9 +196,38 @@ export default function Home() {
           />
         </div>
         <div>
-          {createColorInput('wallColor', 'Wall Color', setWallColor)}
-          {createColorInput('pathColor', 'Path Color', setPathColor)}
-          {createColorInput('solutionColor', 'Solution Color', setSolutionColor)}
+          <label htmlFor="wallColor">Wall Color</label>
+          <input
+            type="color"
+            id="wallColor"
+            name="wallColor"
+            defaultValue="#000000"
+            onChange={(e) => {
+              setWallColor(e.target.value);
+            }}
+          />
+          <br />
+          <label htmlFor="pathColor">Path Color</label>
+          <input
+            type="color"
+            id="pathColor"
+            name="pathColor"
+            defaultValue="#FFFFFF"
+            onChange={(e) => {
+              setPathColor(e.target.value);
+            }}
+          />
+          <br />
+          <label htmlFor="solutionColor">Solution Color</label>
+          <input
+            type="color"
+            id="solutionColor"
+            name="solutionColor"
+            defaultValue="#FF0000"
+            onChange={(e) => {
+              setSolutionColor(e.target.value);
+            }}
+          />
         </div>
         <div>
           <button
@@ -222,8 +235,8 @@ export default function Home() {
               handleGenerationButtonClicked({
                 width: getNumber(width),
                 height: getNumber(height),
-                innerWidth: getNumber(innerWidth) ?? 0,
-                innerHeight: getNumber(innerHeight) ?? 0,
+                innerWidth: getNumber(innerWidth),
+                innerHeight: getNumber(innerHeight),
                 invalidElements,
                 minValues,
                 maxValues,
@@ -241,13 +254,10 @@ export default function Home() {
           >
             <FaGear /> Generate
           </button>
+          <br />
+          <canvas id="mazeCanvas" width="0" height="0"></canvas>
         </div>
-        <canvas id="mazeCanvas" width="0" height="0"></canvas>
       </main>
     </div>
   );
-}
-
-function getNumber(value: string): number {
-  return isNaN(parseInt(value)) ? 0 : parseInt(value);
 }
