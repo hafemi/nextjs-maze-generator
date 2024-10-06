@@ -137,35 +137,6 @@ export class MazeGenerator {
     }
   }
 
-  updateMazeCanvas(showSolutionCheckbox: boolean): void {
-    const mazeCanvas = document.getElementById('mazeCanvas') as HTMLCanvasElement;
-    const ctx = mazeCanvas.getContext('2d');
-    const multiplier = 10;
-    const newWidth = this.width * multiplier;
-    const newHeight = this.height * multiplier;
-    if (!ctx) return;
-
-    mazeCanvas.width = newWidth;
-    mazeCanvas.height = newHeight;
-    
-    console.log('pathcolor', this.pathColor);
-    console.log('wallcolor', this.wallColor);
-    console.log('solutioncolor', this.solutionColor);
-
-    for (let y = 0; y < this.maze.length; y++) {
-      for (let x = 0; x < this.maze[y].length; x++) {
-        if (this.maze[y][x] === MazeCellValue.Wall) {
-          ctx.fillStyle = this.wallColor;
-        } else if (this.maze[y][x] === MazeCellValue.Solution && showSolutionCheckbox) {
-          ctx.fillStyle = this.solutionColor;
-        } else {
-          ctx.fillStyle = this.pathColor;
-        }
-        ctx.fillRect(x * multiplier, y * multiplier, multiplier, multiplier);
-      }
-    }
-  }
-
   createEntryAndExitForMaze(): void {
     switch (this.startingPoint) {
       case 'top':
@@ -199,17 +170,31 @@ export class MazeGenerator {
     }
   }
 
-  turnToOddNumber(value: number): number {
-    return value % 2 === 0 ? value + 1 : value;
-  }
+  updateMazeCanvas(showSolutionCheckbox: boolean): void {
+    const mazeCanvas = document.getElementById('mazeCanvas') as HTMLCanvasElement;
+    const ctx = mazeCanvas.getContext('2d');
+    const multiplier = 10;
+    if (!ctx) return;
 
-  randomOddNumber(min: number, max: number): number {
-    const num = Math.floor(Math.random() * (max - min)) + min;
-    return num % 2 === 0 ? num + 1 : num;
+    mazeCanvas.width = this.width * multiplier;
+    mazeCanvas.height = this.height * multiplier;
+
+    for (let y = 0; y < this.maze.length; y++) {
+      for (let x = 0; x < this.maze[y].length; x++) {
+        if (this.maze[y][x] === MazeCellValue.Wall) {
+          ctx.fillStyle = this.wallColor;
+        } else if (this.maze[y][x] === MazeCellValue.Solution && showSolutionCheckbox) {
+          ctx.fillStyle = this.solutionColor;
+        } else {
+          ctx.fillStyle = this.pathColor;
+        }
+        ctx.fillRect(x * multiplier, y * multiplier, multiplier, multiplier);
+      }
+    }
   }
 
   async solveMaze(startRow: number, startCol: number): Promise<void> {
-    if (this.startingPoint !== 'none' && await this.explore(startRow, startCol)) {
+    if (this.startingPoint !== 'none' && (await this.explore(startRow, startCol))) {
       this.maze[this.exitPoint.row][this.exitPoint.col] = MazeCellValue.Solution;
     }
   }
@@ -249,6 +234,15 @@ export class MazeGenerator {
     function isValid(row: number, col: number, maze: number[][]): boolean {
       return row >= 0 && row < maze.length && col >= 0 && col < maze[row].length;
     }
+  }
+
+  turnToOddNumber(value: number): number {
+    return value % 2 === 0 ? value + 1 : value;
+  }
+
+  randomOddNumber(min: number, max: number): number {
+    const num = Math.floor(Math.random() * (max - min)) + min;
+    return num % 2 === 0 ? num + 1 : num;
   }
 }
 

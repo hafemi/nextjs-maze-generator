@@ -1,10 +1,7 @@
 'use client';
 import { useState } from 'react';
 import { FaGear } from 'react-icons/fa6';
-import {
-  MazeGenerator,
-  handleGenerationButtonClicked
-} from './button-handler';
+import { MazeGenerator, handleGenerationButtonClicked } from './button-handler';
 import styles from './page.module.css';
 
 const minValues: Record<string, number> = {
@@ -54,10 +51,10 @@ export default function Home() {
 
     setInvalidElements(invalidElements.filter((id) => id !== elementId));
   };
-  
+
   const getNumber = (value: string): number => {
     return isNaN(parseInt(value)) ? 0 : parseInt(value);
-  }
+  };
 
   return (
     <div className={styles.page}>
@@ -254,6 +251,7 @@ export default function Home() {
           >
             <FaGear /> Generate
           </button>
+          <br />
           <br />
           <canvas id="mazeCanvas" width="0" height="0"></canvas>
         </div>
