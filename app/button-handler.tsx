@@ -9,8 +9,6 @@ enum MazeCellValue {
 interface MazeGenerationConfig {
   width: number;
   height: number;
-  innerWidth: number;
-  innerHeight: number;
   invalidElements: string[];
   minValues: Record<string, number>;
   maxValues: Record<string, number>;
@@ -249,8 +247,6 @@ export class MazeGenerator {
 function validateElements({
   width,
   height,
-  innerWidth,
-  innerHeight,
   invalidElements,
   minValues,
   maxValues,
@@ -261,8 +257,6 @@ function validateElements({
   const dimensions = [
     { value: width, min: minValues.width, max: maxValues.width },
     { value: height, min: minValues.height, max: maxValues.height },
-    { value: innerWidth, min: minValues.innerWidth, max: maxValues.innerWidth },
-    { value: innerHeight, min: minValues.innerHeight, max: maxValues.innerHeight },
   ];
 
   for (const { value, min, max } of dimensions) {

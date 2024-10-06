@@ -7,22 +7,16 @@ import styles from './page.module.css';
 const minValues: Record<string, number> = {
   width: 5,
   height: 5,
-  innerWidth: 0,
-  innerHeight: 0,
 };
 
 const maxValues: Record<string, number> = {
   width: 150,
   height: 150,
-  innerWidth: 145,
-  innerHeight: 145,
 };
 
 export default function Home() {
   const [width, setWidth] = useState('');
   const [height, setHeight] = useState('');
-  const [innerWidth, setInnerWidth] = useState('');
-  const [innerHeight, setInnerHeight] = useState('');
   const [startingPoint, setStartingPoint] = useState('top');
   const [animateCheckbox, setAnimateCheckbox] = useState(false);
   const [animationSpeed, setAnimationSpeed] = useState(0);
@@ -99,48 +93,6 @@ export default function Home() {
                 min: minValues.height,
                 max: maxValues.height,
                 elementId: 'height',
-              });
-            }}
-          />
-          <br />
-          <label htmlFor="innerWidth">Inner Width</label>
-          <input
-            className={`
-              ${invalidElements.includes('innerWidth') ? styles.invalid : ''}
-              ${styles.input}
-            `}
-            id="innerWidth"
-            type="number"
-            placeholder={`${minValues.innerWidth}-${maxValues.innerWidth}`}
-            value={innerWidth}
-            onChange={(e) => {
-              setInnerWidth(e.target.value);
-              validateElement({
-                value: parseInt(e.target.value),
-                min: minValues.innerWidth,
-                max: maxValues.innerWidth,
-                elementId: 'innerWidth',
-              });
-            }}
-          />
-          <br />
-          <label htmlFor="innerHeight">Inner Height</label>
-          <input
-            className={`
-              ${invalidElements.includes('innerHeight') ? styles.invalid : ''}
-              ${styles.input}
-            `}
-            id="innerHeight"
-            type="number"
-            placeholder={`${minValues.innerHeight}-${maxValues.innerHeight}`}
-            value={innerHeight}
-            onChange={(e) => {
-              setInnerHeight(e.target.value);
-              validateElement({
-                value: parseInt(e.target.value),
-                min: minValues.innerHeight,
-                max: maxValues.innerHeight,
-                elementId: 'innerHeight',
               });
             }}
           />
@@ -232,8 +184,6 @@ export default function Home() {
               handleGenerationButtonClicked({
                 width: getNumber(width),
                 height: getNumber(height),
-                innerWidth: getNumber(innerWidth),
-                innerHeight: getNumber(innerHeight),
                 invalidElements,
                 minValues,
                 maxValues,
