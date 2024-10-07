@@ -136,58 +136,33 @@ export class MazeGenerator {
   }
 
   createEntryAndExitForMaze(): void {
+    const middlePointX = this.turnToOddNumber(Math.floor(this.width / 2));
+    const middlePointY = this.turnToOddNumber(Math.floor(this.height / 2));
+    const OFFSET_ONE = 1;
+    const OFFSET_TWO = 2;
+
+    const setEntryAndExit = (entryRow: number, entryCol: number, exitRow: number, exitCol: number) => {
+      this.maze[entryRow][entryCol] = MazeCellValue.Path;
+      this.maze[exitRow][exitCol] = MazeCellValue.Path;
+      this.entryPoint = { row: entryRow, col: entryCol };
+      this.exitPoint = { row: exitRow, col: exitCol };
+    };
+
     switch (this.startingPoint) {
       case 'top':
-        const middlePointX = this.turnToOddNumber(Math.floor(this.width / 2));
-        this.maze[0][middlePointX] = MazeCellValue.Path;
-        this.maze[this.height - 1][middlePointX] = MazeCellValue.Path;
-        this.entryPoint = { row: 0, col: middlePointX };
-        this.exitPoint = { row: this.height - 1, col: middlePointX };
+        setEntryAndExit(0, middlePointX, this.height - 1, middlePointX);
         break;
       case 'side':
-        const middlePointY = this.turnToOddNumber(Math.floor(this.height / 2));
-        this.maze[middlePointY][0] = MazeCellValue.Path;
-        this.maze[middlePointY][this.width - 1] = MazeCellValue.Path;
-        this.entryPoint = { row: middlePointY, col: 0 };
-        this.exitPoint = { row: middlePointY, col: this.width - 1 };
+        setEntryAndExit(middlePointY, 0, middlePointY, this.width - 1);
         break;
       case 'topleft':
-        this.maze[0][1] = MazeCellValue.Path;
-        this.maze[this.height - 1][this.width - 2] = MazeCellValue.Path;
-        this.entryPoint = { row: 0, col: 1 };
-        this.exitPoint = { row: this.height - 1, col: this.width - 2 };
+        setEntryAndExit(0, OFFSET_ONE, this.height - 1, this.width - OFFSET_TWO);
         break;
       case 'lefttop':
-        this.maze[1][0] = MazeCellValue.Path;
-        this.maze[this.height - 2][this.width - 1] = MazeCellValue.Path;
-        this.entryPoint = { row: 1, col: 0 };
-        this.exitPoint = { row: this.height - 2, col: this.width - 1 };
+        setEntryAndExit(OFFSET_ONE, 0, this.height - OFFSET_TWO, this.width - 1);
         break;
       default:
         break;
-    }
-  }
-
-  updateMazeCanvas(showSolutionCheckbox: boolean): void {
-    const mazeCanvas = document.getElementById('mazeCanvas') as HTMLCanvasElement;
-    const ctx = mazeCanvas.getContext('2d');
-    const multiplier = 10;
-    if (!ctx) return;
-
-    mazeCanvas.width = this.width * multiplier;
-    mazeCanvas.height = this.height * multiplier;
-
-    for (let y = 0; y < this.maze.length; y++) {
-      for (let x = 0; x < this.maze[y].length; x++) {
-        if (this.maze[y][x] === MazeCellValue.Wall) {
-          ctx.fillStyle = this.wallColor;
-        } else if (this.maze[y][x] === MazeCellValue.Solution && showSolutionCheckbox) {
-          ctx.fillStyle = this.solutionColor;
-        } else {
-          ctx.fillStyle = this.pathColor;
-        }
-        ctx.fillRect(x * multiplier, y * multiplier, multiplier, multiplier);
-      }
     }
   }
 
@@ -234,6 +209,34 @@ export class MazeGenerator {
     }
   }
 
+  updateMazeCanvas(showSolutionCheckbox: boolean): void {
+    const mazeCanvas = document.getElementById('mazeCanvas') as HTMLCanvasElement;
+    const ctx = mazeCanvas.getContext('2d');
+    const multiplier = 10;
+    if (!ctx) return;
+
+    mazeCanvas.width = this.width * multiplier;
+    mazeCanvas.height = this.height * multiplier;
+
+    for (let y = 0; y < this.maze.length; y++) {
+      for (let x = 0; x < this.maze[y].length; x++) {
+        ctx.fillStyle = this.getFillColor({ row: y, col: x }, showSolutionCheckbox);
+        ctx.fillRect(x * multiplier, y * multiplier, multiplier, multiplier);
+      }
+    }
+  }
+
+  getFillColor(coordinate: Coordinate, showSolution: boolean): string {
+    switch (this.maze[coordinate.row][coordinate.col]) {
+      case MazeCellValue.Wall:
+        return this.wallColor;
+      case MazeCellValue.Solution:
+        return showSolution ? this.solutionColor : this.pathColor;
+      default:
+        return this.pathColor;
+    }
+  }
+
   turnToOddNumber(value: number): number {
     return value % 2 === 0 ? value + 1 : value;
   }
@@ -244,13 +247,7 @@ export class MazeGenerator {
   }
 }
 
-function validateElements({
-  width,
-  height,
-  invalidElements,
-  minValues,
-  maxValues,
-}: MazeGenerationConfig): boolean {
+function validateElements({ width, height, invalidElements, minValues, maxValues }: MazeGenerationConfig): boolean {
   if (invalidElements.length > 0) return false;
 
   // prettier-ignore
