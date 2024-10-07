@@ -147,8 +147,12 @@ export class MazeGenerator {
       this.entryPoint = { row: entryRow, col: entryCol };
       this.exitPoint = { row: exitRow, col: exitCol };
     };
+    
+    let startingPoint = this.startingPoint;
+    if (startingPoint == 'random')
+      startingPoint = ['top', 'side', 'topleft', 'lefttop', 'none'][Math.floor(Math.random() * 5)];
 
-    switch (this.startingPoint) {
+    switch (startingPoint) {
       case 'top':
         setEntryAndExit(0, middlePointX, this.height - 1, middlePointX);
         break;

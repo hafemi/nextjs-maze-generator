@@ -116,6 +116,7 @@ export default function Home() {
             <option value="side">Side</option>
             <option value="topleft">Top Left</option>
             <option value="lefttop">Left Top</option>
+            <option value="random">Random</option>
             <option value="none">None</option>
           </select>
           <br />
