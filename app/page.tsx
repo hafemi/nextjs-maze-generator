@@ -1,6 +1,6 @@
 'use client';
 import { useState } from 'react';
-import { FaGear } from 'react-icons/fa6';
+import { FaArrowDown, FaGear } from 'react-icons/fa6';
 import { MazeGenerator, handleGenerationButtonClicked } from './button-handler';
 import styles from './page.module.css';
 
@@ -197,15 +197,20 @@ export default function Home() {
                 solutionColor,
                 maze,
                 setMaze,
-              })
+              })  
             }
           >
             <FaGear /> Generate
           </button>
-          <br />
-          <br />
-          <canvas id="mazeCanvas" width="0" height="0"></canvas>
+          <button
+            onClick={() => {
+              console.log('download')
+            }}
+          >
+            <FaArrowDown /> Download
+          </button>
         </div>
+        <canvas id="mazeCanvas" width="0" height="0"></canvas>
       </main>
     </div>
   );
