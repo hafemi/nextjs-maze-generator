@@ -16,9 +16,12 @@ interface MazeGenerationConfig {
   animateCheckbox: boolean;
   animationSpeed: number;
   showSolutionCheckbox: boolean;
+  showEntryExitCheckbox: boolean;
   pathColor: string;
   wallColor: string;
   solutionColor: string;
+  entryColor: string;
+  exitColor: string;
   maze: MazeGenerator | null;
   setMaze: Dispatch<SetStateAction<MazeGenerator | null>>;
 }
@@ -40,9 +43,12 @@ export function handleGenerationButtonClicked(values: MazeGenerationConfig): voi
     values.animateCheckbox,
     values.animationSpeed,
     values.showSolutionCheckbox,
+    values.showEntryExitCheckbox,
     values.pathColor,
     values.wallColor,
-    values.solutionColor
+    values.solutionColor,
+    values.entryColor,
+    values.exitColor
   );
   values.setMaze(mazeGenerator);
   mazeGenerator.generateMaze();
@@ -58,12 +64,15 @@ export class MazeGenerator {
     public width: number,
     public height: number,
     public startingPoint: string,
-    public animateCheckbox: boolean,
+    public animate: boolean,
     public animationSpeed: number,
-    public showSolutionCheckbox: boolean,
+    public showSolution: boolean,
+    public showEntryExit: boolean,
     public pathColor: string,
     public wallColor: string,
-    public solutionColor: string
+    public solutionColor: string,
+    public entryColor: string,
+    public exitColor: string
   ) {
     this.width = this.turnToOddNumber(this.width);
     this.height = this.turnToOddNumber(this.height);
@@ -93,7 +102,7 @@ export class MazeGenerator {
     if (this.isGenerating) {
       this.createEntryAndExitForMaze();
       await this.solveMaze(this.entryPoint.row, this.entryPoint.col);
-      this.updateMazeCanvas(this.showSolutionCheckbox);
+      this.updateMazeCanvas(this.showSolution, this.showEntryExit);
       this.isGenerating = false;
     }
   }
@@ -124,8 +133,8 @@ export class MazeGenerator {
         this.maze[ny - dy / 2][nx - dx / 2] = MazeCellValue.Path;
         this.maze[ny][nx] = MazeCellValue.Path;
 
-        if (this.animateCheckbox) {
-          this.updateMazeCanvas(false);
+        if (this.animate) {
+          this.updateMazeCanvas(false, false);
           await sleep(this.animationSpeed);
           await this.carveMaze(nx, ny);
         } else {
@@ -147,7 +156,7 @@ export class MazeGenerator {
       this.entryPoint = { row: entryRow, col: entryCol };
       this.exitPoint = { row: exitRow, col: exitCol };
     };
-    
+
     let startingPoint = this.startingPoint;
     if (startingPoint == 'random')
       startingPoint = ['top', 'side', 'topleft', 'lefttop', 'none'][Math.floor(Math.random() * 5)];
@@ -177,7 +186,7 @@ export class MazeGenerator {
   }
 
   async explore(row: number, col: number): Promise<boolean> {
-    const directionOffsets: { [key: string]: Coordinate } = {
+    const directionOffsets: { [key: string]: Coordinate; } = {
       up: { row: -1, col: 0 },
       down: { row: 1, col: 0 },
       left: { row: 0, col: -1 },
@@ -189,8 +198,8 @@ export class MazeGenerator {
     }
 
     this.maze[row][col] = MazeCellValue.Solution;
-    if (this.showSolutionCheckbox && this.animateCheckbox) {
-      this.updateMazeCanvas(this.showSolutionCheckbox);
+    if (this.showSolution && this.animate) {
+      this.updateMazeCanvas(this.showSolution, false);
       await sleep(this.animationSpeed);
     }
 
@@ -213,7 +222,7 @@ export class MazeGenerator {
     }
   }
 
-  updateMazeCanvas(showSolutionCheckbox: boolean): void {
+  updateMazeCanvas(showSolution: boolean, showEntryExit: boolean): void {
     const mazeCanvas = document.getElementById('mazeCanvas') as HTMLCanvasElement;
     const ctx = mazeCanvas.getContext('2d');
     const multiplier = 10;
@@ -224,20 +233,38 @@ export class MazeGenerator {
 
     for (let y = 0; y < this.maze.length; y++) {
       for (let x = 0; x < this.maze[y].length; x++) {
-        ctx.fillStyle = this.getFillColor({ row: y, col: x }, showSolutionCheckbox);
+        this.setFillColor({ ctx, coordinate: { row: y, col: x }, showSolution, showEntryExit });
         ctx.fillRect(x * multiplier, y * multiplier, multiplier, multiplier);
       }
     }
   }
 
-  getFillColor(coordinate: Coordinate, showSolution: boolean): string {
-    switch (this.maze[coordinate.row][coordinate.col]) {
+  setFillColor(options: {
+    ctx: CanvasRenderingContext2D,
+    coordinate: Coordinate,
+    showSolution: boolean,
+    showEntryExit: boolean;
+  }): void {
+    if (options.showEntryExit) {
+      if (options.coordinate.row === this.entryPoint.row && options.coordinate.col === this.entryPoint.col) {
+        options.ctx.fillStyle = this.entryColor;
+        return;
+      } else if (options.coordinate.row === this.exitPoint.row && options.coordinate.col === this.exitPoint.col) {
+        options.ctx.fillStyle = this.exitColor;
+        return;
+      }
+    }
+    
+    switch (this.maze[options.coordinate.row][options.coordinate.col]) {
       case MazeCellValue.Wall:
-        return this.wallColor;
+        options.ctx.fillStyle = this.wallColor;
+        break
       case MazeCellValue.Solution:
-        return showSolution ? this.solutionColor : this.pathColor;
+        options.ctx.fillStyle = options.showSolution ? this.solutionColor : this.pathColor;
+        break
       default:
-        return this.pathColor;
+        options.ctx.fillStyle = this.pathColor;
+        break
     }
   }
 

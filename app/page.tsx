@@ -21,9 +21,12 @@ export default function Home() {
   const [animateCheckbox, setAnimateCheckbox] = useState(false);
   const [animationSpeed, setAnimationSpeed] = useState(0);
   const [showSolutionCheckbox, setShowSolutionCheckbox] = useState(false);
+  const [showEntryExitCheckbox, setShowEntryExitCheckbox] = useState(false);
   const [pathColor, setPathColor] = useState('#FFFFFF');
   const [wallColor, setWallColor] = useState('#000000');
   const [solutionColor, setSolutionColor] = useState('#FF0000');
+  const [entryColor, setEntryColor] = useState('#00FF00');
+  const [exitColor, setExitColor] = useState('#FF0000');
   const [invalidElements, setInvalidElements] = useState<string[]>([]);
   const [maze, setMaze] = useState<MazeGenerator | null>(null);
 
@@ -138,9 +141,25 @@ export default function Home() {
               if (!maze || maze.isGenerating) return;
 
               if (e.target.checked) {
-                maze.updateMazeCanvas(true);
+                maze.updateMazeCanvas(true, showEntryExitCheckbox);
               } else {
-                maze.updateMazeCanvas(false);
+                maze.updateMazeCanvas(false, showEntryExitCheckbox);
+              }
+            }}
+          />
+          <br />
+          <label htmlFor="Show Entry/Exit">Show Entry/Exit</label>
+          <input
+            id="showEntryExitCheckbox"
+            type="checkbox"
+            onChange={(e) => {
+              setShowEntryExitCheckbox(e.target.checked);
+              if (!maze || maze.isGenerating) return;
+
+              if (e.target.checked) {
+                maze.updateMazeCanvas(showSolutionCheckbox, true);
+              } else {
+                maze.updateMazeCanvas(showSolutionCheckbox, false);
               }
             }}
           />
@@ -168,16 +187,46 @@ export default function Home() {
             }}
           />
           <br />
-          <label htmlFor="solutionColor">Solution Color</label>
-          <input
-            type="color"
-            id="solutionColor"
-            name="solutionColor"
-            defaultValue="#FF0000"
-            onChange={(e) => {
-              setSolutionColor(e.target.value);
-            }}
-          />
+          {showSolutionCheckbox && (
+            <div>
+              <label htmlFor="solutionColor">Solution Color</label>
+              <input
+                type="color"
+                id="solutionColor"
+                name="solutionColor"
+                defaultValue="#FF0000"
+                onChange={(e) => {
+                  setSolutionColor(e.target.value);
+                }}
+              />
+            </div>
+          )}
+          <br />
+          {showEntryExitCheckbox && (
+            <div>
+              <label htmlFor="entryColor">Entry Color</label>
+              <input
+                type="color"
+                id="entryColor"
+                name="entryColor"
+                defaultValue="#00FF00"
+                onChange={(e) => {
+                  setEntryColor(e.target.value);
+                }}
+              />
+              <br />
+              <label htmlFor="exitColor">Exit Color</label>
+              <input
+                type="color"
+                id="exitColor"
+                name="exitColor"
+                defaultValue="#FF0000"
+                onChange={(e) => {
+                  setExitColor(e.target.value);
+                }}
+              />
+            </div>
+          )}
         </div>
         <div>
           <button
@@ -192,19 +241,22 @@ export default function Home() {
                 animateCheckbox,
                 animationSpeed,
                 showSolutionCheckbox,
+                showEntryExitCheckbox,
                 pathColor,
                 wallColor,
                 solutionColor,
+                entryColor,
+                exitColor,
                 maze,
                 setMaze,
-              })  
+              })
             }
           >
             <FaGear /> Generate
           </button>
           <button
             onClick={() => {
-              console.log('download')
+              console.log('download');
             }}
           >
             <FaArrowDown /> Download
