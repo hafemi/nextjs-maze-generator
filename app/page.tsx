@@ -100,17 +100,15 @@ export default function Home() {
             }}
           />
           <br />
-          {animateCheckbox && (
-            <div>
-              <label htmlFor="speedInMS">Speed (ms)</label>
-              <input
-                id="speedInMS"
-                type="number"
-                placeholder="100"
-                onChange={(e) => setAnimationSpeed(parseInt(e.target.value))}
-              />
-            </div>
-          )}
+          <div className={!animateCheckbox ? styles.hidden : ''}>
+            <label htmlFor="speedInMS">Speed (ms)</label>
+            <input
+              id="speedInMS"
+              type="number"
+              placeholder="100"
+              onChange={(e) => setAnimationSpeed(parseInt(e.target.value))}
+            />
+          </div>
         </div>
         <div>
           <label htmlFor="startingPoint">Starting Point</label>
@@ -187,46 +185,41 @@ export default function Home() {
             }}
           />
           <br />
-          {showSolutionCheckbox && (
-            <div>
-              <label htmlFor="solutionColor">Solution Color</label>
-              <input
-                type="color"
-                id="solutionColor"
-                name="solutionColor"
-                defaultValue="#FF0000"
-                onChange={(e) => {
-                  setSolutionColor(e.target.value);
-                }}
-              />
-            </div>
-          )}
-          <br />
-          {showEntryExitCheckbox && (
-            <div>
-              <label htmlFor="entryColor">Entry Color</label>
-              <input
-                type="color"
-                id="entryColor"
-                name="entryColor"
-                defaultValue="#00FF00"
-                onChange={(e) => {
-                  setEntryColor(e.target.value);
-                }}
-              />
-              <br />
-              <label htmlFor="exitColor">Exit Color</label>
-              <input
-                type="color"
-                id="exitColor"
-                name="exitColor"
-                defaultValue="#FF0000"
-                onChange={(e) => {
-                  setExitColor(e.target.value);
-                }}
-              />
-            </div>
-          )}
+          <div className={!showSolutionCheckbox ? styles.hidden : ''}>
+            <label htmlFor="solutionColor">Solution Color</label>
+            <input
+              type="color"
+              id="solutionColor"
+              name="solutionColor"
+              defaultValue="#FF0000"
+              onChange={(e) => {
+                setSolutionColor(e.target.value);
+              }}
+            />
+          </div>
+          <div className={!showEntryExitCheckbox ? styles.hidden : ''}>
+            <label htmlFor="entryColor">Entry Color</label>
+            <input
+              type="color"
+              id="entryColor"
+              name="entryColor"
+              defaultValue="#00FF00"
+              onChange={(e) => {
+                setEntryColor(e.target.value);
+              }}
+            />
+            <br />
+            <label htmlFor="exitColor">Exit Color</label>
+            <input
+              type="color"
+              id="exitColor"
+              name="exitColor"
+              defaultValue="#FF0000"
+              onChange={(e) => {
+                setExitColor(e.target.value);
+              }}
+            />
+          </div>
         </div>
         <div>
           <button
