@@ -245,7 +245,11 @@ export class MazeGenerator {
     showSolution: boolean,
     showEntryExit: boolean;
   }): void {
-    if (options.showEntryExit) {
+    if (
+      options.showEntryExit &&
+      this.startingPoint !== 'none' &&
+      this.startingPoint !== 'random'
+    ) {
       if (options.coordinate.row === this.entryPoint.row && options.coordinate.col === this.entryPoint.col) {
         options.ctx.fillStyle = this.entryColor;
         return;
