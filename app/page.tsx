@@ -252,13 +252,23 @@ export default function Home() {
           </button>
           <button
             onClick={() => {
-              console.log('download');
+              if (!maze || maze.isGenerating) return;
+              const canvas = document.getElementById('mazeCanvas') as HTMLCanvasElement;
+              const dataURL = canvas.toDataURL('image/png');
+              const link = document.createElement('a');
+              link.href = dataURL;
+              link.download = 'maze.png';
+              link.click();
             }}
           >
             <FaArrowDown /> Download
           </button>
         </div>
-        <canvas id="mazeCanvas" width="0" height="0"></canvas>
+        <canvas
+          id="mazeCanvas"
+          width="0"
+          height="0"
+        ></canvas>
       </main>
     </div>
   );
