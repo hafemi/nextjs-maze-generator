@@ -1,7 +1,11 @@
 'use client';
 import { useState } from 'react';
 import { FaArrowDown, FaGear } from 'react-icons/fa6';
-import { MazeGenerator, handleGenerationButtonClicked } from './button-handler';
+import {
+  MazeGenerator,
+  handleGenerationButtonClicked,
+  StartingPoint
+} from './button-handler';
 import styles from './page.module.css';
 
 const minValues: Record<string, number> = {
@@ -17,7 +21,7 @@ const maxValues: Record<string, number> = {
 export default function Home() {
   const [width, setWidth] = useState('');
   const [height, setHeight] = useState('');
-  const [startingPoint, setStartingPoint] = useState('top');
+  const [startingPoint, setStartingPoint] = useState(StartingPoint.Top);
   const [animateCheckbox, setAnimateCheckbox] = useState(false);
   const [animationSpeed, setAnimationSpeed] = useState(0);
   const [showSolutionCheckbox, setShowSolutionCheckbox] = useState(false);
@@ -112,13 +116,12 @@ export default function Home() {
         </div>
         <div>
           <label htmlFor="startingPoint">Starting Point</label>
-          <select id="startingPoint" value={startingPoint} onChange={(e) => setStartingPoint(e.target.value)}>
-            <option value="top">Top</option>
-            <option value="side">Side</option>
-            <option value="topleft">Top Left</option>
-            <option value="lefttop">Left Top</option>
-            <option value="random">Random</option>
-            <option value="none">None</option>
+          <select id="startingPoint" value={startingPoint} onChange={(e) => setStartingPoint(e.target.value as StartingPoint)}>
+            <option value={StartingPoint.Top}>Top</option>
+            <option value={StartingPoint.Side}>Side</option>
+            <option value={StartingPoint.TopLeft}>TopLeft</option>
+            <option value={StartingPoint.Random}>Random</option>
+            <option value={StartingPoint.None}>None</option>
           </select>
           <br />
           <label htmlFor="animationSpeedCheckbox">Animation Speed</label>
